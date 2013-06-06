@@ -1,0 +1,95 @@
+define(['./bindings/click', './bindings/keypressed', './bindings/timeout'], function(click, keypressed, timeout){
+	/*
+	 * this function decorates a listener object with on and off functions
+	 * it takes listener (the object) and the binding definitions as parameters
+	 * 
+	 * the function returns true in case the decoration was successfull and false in case it was not.
+	 */
+	return function(listener,definitions){
+		var on = definitions.on; // what type of binding is this?
+		
+		// if the on and off function are set explicitly, set them in;
+		if (typeof on === 'function') {
+			listener.on = definitions.on;
+			listener.off = definitions.off;
+			if (typeof listener.off !== 'function') throw new Error("Interface off is not a function for " + definitions.handle);
+			return true;
+		}
+		
+		switch (on){
+			/*
+			 * the archtipical events
+			 */
+			case 'keypressed'	:					
+				keypressed(listener, definitions);				
+				break;
+				
+			case 'click'		:
+				click(listener,definitions);				
+				break;
+				
+			case 'timeout'		:				
+				timeout(listener,definitions);				
+				break;			
+							
+			/*
+			 * Shortcuts
+			 */
+
+			case 'enter'	:		
+				keypressed(listener, {key:13, handle:'enter'});
+				break;
+
+			case 'space'	:		
+				keypressed(listener, {key:32, handle:'space'});
+				break;				
+
+			case 'leftTouch'	:
+				definitions.element = $('<div>')
+					.css({
+						position: 'absolute',
+						left: 0,
+						width: '30%',
+						height: '100%',
+						background: '#00FF00',
+						opacity: 0.3
+					});
+				
+				click(listener,definitions);
+				break;
+			
+			case 'rightTouch'	:
+				definitions.element = $('<div>')
+					.css({
+						position: 'absolute',
+						right: 0,
+						width: '30%',
+						height: '100%',
+						background: '#00FF00',
+						opacity: 0.3
+					});
+									
+				click(listener,definitions);
+				break;
+
+			case 'centerTouch'	:
+				definitions.element = $('<div>')
+					.css({
+						position: 'absolute',
+						bottom: 0,
+						width: '100%',
+						height: '30%',
+						background: '#00FF00',
+						opacity: 0.3
+					});
+									
+				click(listener,definitions);
+				break;
+			
+			default: throw new Error("Unknown interface element " + definitions.handle);				
+		}
+		
+		return true;
+		
+	}
+});
